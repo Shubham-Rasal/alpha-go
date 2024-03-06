@@ -1,3 +1,4 @@
+import ConfettiComponent from '@/app/components/confetti'
 import React from 'react'
 
 const SayPage = () => {
@@ -43,6 +44,8 @@ const SayPage = () => {
         src="https://cdn.builder.io/api/v1/image/assets/TEMP/57b3c53788718b83e32021628d4411d1569ad7e0d396a469cfcf9e6fe8ab3e16?"
         className="mt-0 max-w-full aspect-[0.99] w-[136px]"
       />
+
+      <ConfettiComponent />
      
     </div>
   )

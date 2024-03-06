@@ -11,7 +11,9 @@
   "dependencies": {
     "next": "14.1.1",
     "react": "^18",
+    "react-confetti": "^6.1.0",
     "react-dom": "^18",
+    "react-use": "^17.5.0",
     "tldraw": "^2.1.0-canary.8658e20ab55b"
   },
   "devDependencies": {
