@@ -1,6 +1,7 @@
 "use client";
 import ConfettiComponent from "@/app/components/confetti";
-import React, { useCallback } from "react";
+import Link from "next/link";
+import React, { useCallback, useState } from "react";
 import {
   Tldraw,
   useEditor,
@@ -8,9 +9,19 @@ import {
   Editor,
   AssetRecordType,
   TLComponents,
+  useValue,
+  hardResetEditor,
 } from "tldraw";
 
 const DrawPage = () => {
+  const [editor, setEditor] = useState<Editor | null>(null);
+
+  const currentToolId = useValue(
+    "current tool id",
+    () => editor?.getCurrentToolId(),
+    [editor]
+  );
+
   const handleMount = useCallback((editor: Editor) => {
     //[2]
     const assetId = AssetRecordType.createId();
@@ -52,8 +63,7 @@ const DrawPage = () => {
   }, []);
 
   const components: TLComponents = {
-    SharePanel: CustomShareZone,
-    TopPanel: ConfirmButton,
+    // SharePanel: CustomShareZone,
     Background: () => (
       <img
         src="/grid.svg"
@@ -63,7 +73,7 @@ const DrawPage = () => {
           inset: 0,
           backgroundColor: "lightgray",
           width: "100%",
-          height: "100vh",
+          height: "82vh",
         }}
       />
     ),
@@ -71,39 +81,39 @@ const DrawPage = () => {
     MainMenu: null,
     ActionsMenu: null,
     PageMenu: null,
+    DebugMenu: null,
   };
 
   return (
-    <div style={{ position: "fixed", inset: 0 }}>
-      <Tldraw onMount={handleMount} components={components} />
+    <div className="flex flex-col h-screen bg-white">
+      <div style={{ height: 750 }}>
+        <Tldraw
+          onMount={(editor) => {
+            setEditor(editor);
+            handleMount(editor);
+          }}
+          components={components}
+        />
+      </div>
+      {/* [3] */}
+      <div className="flex justify-center w-full bg-white h-16">
+        <button
+          className="bg-blue-500 hover:bg-blue-700 w-1/2 text-white font-bold py-2 px-4 rounded-full"
+          onClick={() => {
+            if (editor) {
+              // hardResetEditor();
+              // handleMount(editor);
+            }
+          }}
+        >
+          Check
+        </button>
+        <button className="bg-slate-900 hover:bg-slate-700 w-1/2 text-white font-bold py-2 px-4 rounded-full">
+          <Link href="/learn">Back</Link>
+        </button>
+      </div>
     </div>
   );
 };
 
 export default DrawPage;
-
-function CustomShareZone() {
-  return (
-    <div
-      style={{
-        backgroundColor: "thistle",
-        width: "100%",
-        textAlign: "center",
-        minWidth: "80px",
-      }}
-    >
-      {/* <ConfettiComponent /> */}
-    </div>
-  );
-}
-
-//creaet a big blue confirm button just above the drawing area
-function ConfirmButton() {
-  return (
-    <div className="flex justify-center items-center w-full h-16 bg-blue-500 text-white text-2xl
-    fixed top-0 left-0 z-50
-    ">
-      👍
-    </div>
-  );
-}
