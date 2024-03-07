@@ -217,7 +217,7 @@ const DrawPage = () => {
                     stencilGrayscaleData
                   );
                   console.log(errorPercentage);
-                  if (errorPercentage < 11) {
+                  if (errorPercentage <= 11) {
                     setIsError(false);
                   } else {
                     setIsError(true);
