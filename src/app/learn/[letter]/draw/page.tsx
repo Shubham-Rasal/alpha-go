@@ -124,7 +124,7 @@ const DrawPage = () => {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-white">
+    <div className="flex flex-col h-full bg-white">
       <div style={{ height: 500 }}>
         {isEditing ? (
           <Tldraw
@@ -217,7 +217,7 @@ const DrawPage = () => {
                     stencilGrayscaleData
                   );
                   console.log(errorPercentage);
-                  if (errorPercentage < 11) {
+                  if (errorPercentage < 10) {
                     setIsError(false);
                   } else {
                     setIsError(true);
@@ -253,9 +253,9 @@ const DrawPage = () => {
       {isEditing ? (
         <div className="flex text-black">
           <img src="/apple.svg" alt="" />
-          <p
-          className="text-4xl font-bold flex items-center justify-center h-full w-full bg-white"
-          >Apple</p>
+          <p className="text-4xl font-bold flex items-center justify-center h-full w-full bg-white">
+            Apple
+          </p>
         </div>
       ) : isCalculating ? (
         <div className="flex justify-center items-center h-full">
@@ -272,6 +272,13 @@ const DrawPage = () => {
           <h1 className="text-4xl font-bold text-green-500">Correct!</h1>
         </div>
       )}
+
+      <iframe
+        className="w-full h-96"
+        src="https://www.youtube.com/embed/n5gPlhG_d1E?si=3RrkQtTNabh6OOsR"
+        title="YouTube video player"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      ></iframe>
 
       <audio id="audio_tag" src="/sounds/a.mp3" />
     </div>
