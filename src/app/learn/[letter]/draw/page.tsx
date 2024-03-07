@@ -2,7 +2,7 @@
 import ConfettiComponent from "@/app/components/confetti";
 import Link from "next/link";
 import React, { useCallback, useState } from "react";
-import initialSnapshot from './snapshot.json'
+import initialSnapshot from "./snapshot.json";
 import {
   Tldraw,
   useEditor,
@@ -18,7 +18,6 @@ import {
   TldrawImage,
   TLUnknownShape,
 } from "tldraw";
-
 const DrawPage = () => {
   const [editor, setEditor] = useState<Editor | null>(null);
 
@@ -28,7 +27,8 @@ const DrawPage = () => {
     [editor]
   );
 
-  const [snapshot, setSnapshot] = useState<StoreSnapshot<TLRecord>>(initialSnapshot)
+  const [snapshot, setSnapshot] =
+    useState<StoreSnapshot<TLRecord>>(initialSnapshot);
   const [currentPageId, setCurrentPageId] = useState<TLPageId | undefined>();
   const [isEditing, setIsEditing] = useState(true);
 
@@ -107,43 +107,83 @@ const DrawPage = () => {
             components={components}
           />
         ) : (
-          <TldrawImage
-            //[1]
-            snapshot={snapshot}
-            // [2]
-            pageId={currentPageId}
-            // [3]
-            padding={0}
-            scale={1}
-          />
+          <div className="flex justify-center">
+            <TldrawImage
+              //[1]
+              snapshot={snapshot}
+              // [2]
+              pageId={currentPageId}
+              // [3]
+              padding={30}
+              scale={0.5}
+            />
+            <ConfettiComponent />
+          </div>
         )}
       </div>
-
       {/* [3] */}
-      <div className="flex justify-center w-full bg-white h-16">
+      <div
+        className="
+      flex justify-between p-1 w-full bg-white h-16"
+      >
+        <div className="flex gap-2">
+          <button
+            className="bg-blue-500 hover:bg-blue-700 w-fit text-white font-bold py-2 px-4 rounded-full"
+            onClick={() => {
+              if (isEditing) {
+                if (!editor) return;
+                setCurrentPageId(editor.getCurrentPageId());
+                setSnapshot(editor.store.getSnapshot());
+
+                //get the image of the canvas
+                const container = editor.getContainer();
+                const canvas = container.querySelector("canvas");
+                // console.log(canvas?.toDataURL());
+
+                // const image = new Image();
+                // image.src = canvas?.toDataURL() || "";
+
+                if ("createHandwritingRecognizer" in navigator) {
+                  // 🎉 The Handwriting Recognition API is supported!
+                  console.log("Handwriting Recognition API is supported");
+                }
+
+                setIsEditing(false);
+              } else {
+                setIsEditing(true);
+              }
+            }}
+          >
+            {isEditing ? "Save" : "Reset"}
+          </button>
+          <button className="bg-slate-900 hover:bg-slate-700 w-fit text-white font-bold py-2 px-4 rounded-full">
+            <Link href="/learn">Back</Link>
+          </button>
+        </div>
         <button
-          className="bg-blue-500 hover:bg-blue-700 w-1/2 text-white font-bold py-2 px-4 rounded-full"
           onClick={() => {
-            if (isEditing) {
-              if (!editor) return;
-              setCurrentPageId(editor.getCurrentPageId());
-              setSnapshot(editor.store.getSnapshot());
-
-              //remove the shape before hard reset
-              
-
-              setIsEditing(false);
-            } else {
-              setIsEditing(true);
-            }
+            const audio = document.getElementById(
+              "audio_tag"
+            ) as HTMLAudioElement;
+            audio.play();
           }}
         >
-          {isEditing ? "Save" : "Reset"}
-        </button>
-        <button className="bg-slate-900 hover:bg-slate-700 w-1/2 text-white font-bold py-2 px-4 rounded-full">
-          <Link href="/learn">Back</Link>
+          <img src="/sound.svg" className="size-16" alt="" />
         </button>
       </div>
+      {/* <div className="mt-4 flex justify-center gap-2 w-full h-16 items-center">
+        <img className="w-16 h-16" src="/right.svg" alt="" />
+        <h1 className="text-4xl font-bold text-green-500">Correct!</h1>
+
+      </div> */}
+      {isEditing ? null : (
+        <div className="mt-4 flex justify-center gap-2 w-full h-16 items-center">
+          <img className="w-16 h-16" src="/right.svg" alt="" />
+          <h1 className="text-4xl font-bold text-green-500">Correct!</h1>
+        </div>
+      )}
+
+      <audio id="audio_tag" src="/sounds/a.mp3" />
     </div>
   );
 };
@@ -159,8 +199,6 @@ function CustomShareZone() {
         textAlign: "center",
         minWidth: "80px",
       }}
-    >
-      <ConfettiComponent />
-    </div>
+    ></div>
   );
 }

@@ -17,7 +17,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        {children}</body>
+        <img
+          src="/bg.png"
+          className="absolute inset-0 object-cover w-full h-full z-[-1]"
+        />
+        {children}
+      </body>
     </html>
   );
 }
