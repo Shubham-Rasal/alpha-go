@@ -31,6 +31,8 @@ const DrawPage = () => {
     useState<StoreSnapshot<TLRecord>>(initialSnapshot);
   const [currentPageId, setCurrentPageId] = useState<TLPageId | undefined>();
   const [isEditing, setIsEditing] = useState(true);
+  const [isError, setIsError] = useState(false);
+  const [isCalculating, setIsCalculating] = useState(false);
 
   const handleMount = useCallback((editor: Editor) => {
     //[2]
@@ -95,6 +97,32 @@ const DrawPage = () => {
     DebugMenu: null,
   };
 
+  function convertToGrayscale(imageData: ImageData) {
+    const grayscaleData = new Uint8ClampedArray(
+      imageData.width * imageData.height
+    );
+    for (let i = 0; i < imageData.data.length; i += 4) {
+      const average =
+        (imageData.data[i] + imageData.data[i + 1] + imageData.data[i + 2]) / 3;
+      grayscaleData[i / 4] = average;
+    }
+    return grayscaleData;
+  }
+
+  function compareImages(
+    imageData1: Uint8ClampedArray,
+    imageData2: Uint8ClampedArray
+  ) {
+    let errorCount = 0;
+    for (let i = 0; i < imageData1.length; i++) {
+      // If the difference is greater than 10, consider it an error
+      if (Math.abs(imageData1[i] - imageData2[i]) > 10) {
+        errorCount++;
+      }
+    }
+    return (errorCount / imageData1.length) * 100;
+  }
+
   return (
     <div className="flex flex-col h-screen bg-white">
       <div style={{ height: 500 }}>
@@ -107,7 +135,7 @@ const DrawPage = () => {
             components={components}
           />
         ) : (
-          <div className="flex justify-center">
+          <div id="canvasImage" className="flex justify-center">
             <TldrawImage
               //[1]
               snapshot={snapshot}
@@ -117,7 +145,8 @@ const DrawPage = () => {
               padding={30}
               scale={0.5}
             />
-            <ConfettiComponent />
+            {/* <ConfettiComponent /> */}
+            {isError ? null : <ConfettiComponent />}
           </div>
         )}
       </div>
@@ -132,22 +161,71 @@ const DrawPage = () => {
             onClick={() => {
               if (isEditing) {
                 if (!editor) return;
+                setIsCalculating(true);
                 setCurrentPageId(editor.getCurrentPageId());
                 setSnapshot(editor.store.getSnapshot());
 
-                //get the image of the canvas
-                const container = editor.getContainer();
-                const canvas = container.querySelector("canvas");
-                // console.log(canvas?.toDataURL());
+                // Define the stencil image: Have the stencil image as a reference.
+                const stensilImage = new Image();
+                stensilImage.src = "/letter.svg";
 
-                // const image = new Image();
-                // image.src = canvas?.toDataURL() || "";
+                console.log(stensilImage);
 
-                if ("createHandwritingRecognizer" in navigator) {
-                  // 🎉 The Handwriting Recognition API is supported!
-                  console.log("Handwriting Recognition API is supported");
-                }
+                //wait for image to render
+                setTimeout(() => {
+                  //get the image of the canvas
+                  const images = document
+                    .getElementsByClassName("tl-container")[0]
+                    .getElementsByTagName("img");
+                  console.log(images);
+                  const canvasImage = images[0];
+                  console.log(canvasImage);
 
+                  //calcualte
+
+                  //put both on canvas
+                  const stencilCanvas = document.createElement("canvas");
+                  stencilCanvas.width = stensilImage.width;
+                  stencilCanvas.height = stensilImage.height;
+                  const stencilCtx = stencilCanvas.getContext("2d");
+                  if (!stencilCtx) return;
+                  stencilCtx.drawImage(stensilImage, 0, 0);
+                  const stencilImageData = stencilCtx.getImageData(
+                    0,
+                    0,
+                    stencilCanvas.width,
+                    stencilCanvas.height
+                  );
+                  const stencilGrayscaleData =
+                    convertToGrayscale(stencilImageData);
+
+                  const canvas = document.createElement("canvas");
+                  canvas.width = canvasImage.width;
+                  canvas.height = canvasImage.height;
+                  const ctx = canvas.getContext("2d");
+                  if (!ctx) return;
+                  ctx.drawImage(canvasImage, 0, 0);
+                  const imageData = ctx.getImageData(
+                    0,
+                    0,
+                    canvas.width,
+                    canvas.height
+                  );
+                  const grayscaleData = convertToGrayscale(imageData);
+                  const errorPercentage = compareImages(
+                    grayscaleData,
+                    stencilGrayscaleData
+                  );
+                  console.log(errorPercentage);
+                  if (errorPercentage < 11) {
+                    setIsError(false);
+                  } else {
+                    setIsError(true);
+                  }
+                }, 500);
+
+                // Check if the error percentage is within the tolerance: If the error percentage is less than or equal to 10%, consider the answer correct; otherwise, consider it wrong.
+                setIsCalculating(false);
                 setIsEditing(false);
               } else {
                 setIsEditing(true);
@@ -171,12 +249,24 @@ const DrawPage = () => {
           <img src="/sound.svg" className="size-16" alt="" />
         </button>
       </div>
-      {/* <div className="mt-4 flex justify-center gap-2 w-full h-16 items-center">
-        <img className="w-16 h-16" src="/right.svg" alt="" />
-        <h1 className="text-4xl font-bold text-green-500">Correct!</h1>
 
-      </div> */}
-      {isEditing ? null : (
+      {isEditing ? (
+        <div className="flex text-black">
+          <img src="/apple.svg" alt="" />
+          <p
+          className="text-4xl font-bold flex items-center justify-center h-full w-full bg-white"
+          >Apple</p>
+        </div>
+      ) : isCalculating ? (
+        <div className="flex justify-center items-center h-full">
+          Calculating...
+        </div>
+      ) : isError ? (
+        <div className="mt-4 flex justify-center gap-2 w-full h-16 items-center">
+          <img className="w-16 h-16" src="/wrong.svg" alt="" />
+          <h1 className="text-4xl font-bold text-red-500">Wrong!</h1>
+        </div>
+      ) : (
         <div className="mt-4 flex justify-center gap-2 w-full h-16 items-center">
           <img className="w-16 h-16" src="/right.svg" alt="" />
           <h1 className="text-4xl font-bold text-green-500">Correct!</h1>

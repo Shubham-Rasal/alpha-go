@@ -32,7 +32,13 @@ const LearningPage = () => {
                 <div className="p-10 text-center bg-white rounded-full stroke-[4px]">
                   <Link href="/learn/a/draw">A</Link>
                 </div>
+
               </div>
+              <Link href="/learn/a/pronouce">
+              <img
+              className="w-10 h-10 mx-auto"
+              src="/sound.svg" alt="" />
+              </Link>
             </div>
           </div>
         </div>
