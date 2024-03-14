@@ -275,7 +275,7 @@ const DrawPage = () => {
 
       <iframe
         className="w-full h-96"
-        src="https://www.youtube.com/embed/n5gPlhG_d1E?si=3RrkQtTNabh6OOsR"
+        src="/letter.mp4"
         title="YouTube video player"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
       ></iframe>
