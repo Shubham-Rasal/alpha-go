@@ -275,7 +275,7 @@ const DrawPage = () => {
 
       <iframe
         className="w-full h-96"
-        src="/letter.mp4"
+        src="https://www.youtube.com/embed/n5gPlhG_d1E?si=3RrkQtTNabh6OOsR"
         title="YouTube video player"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
       ></iframe>
@@ -292,10 +292,12 @@ function CustomShareZone() {
     <div
       style={{
         backgroundColor: "thistle",
-        width: "100%",
+        width: "50%",
         textAlign: "center",
-        minWidth: "80px",
       }}
-    ></div>
+    >
+      <video src="/letter.mp4"  autoPlay />
+
+    </div>
   );
 }
